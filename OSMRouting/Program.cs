@@ -9,8 +9,10 @@
 			double minLat = 47.70812;
 			double minLon = 15.80381;
 
-			var a = new OsmHttpRequest(minLat, minLon, maxLat, maxLon);
-		}
+			var jsonResponse = new OsmHttpRequest(minLat, minLon, maxLat, maxLon).getJsonResponse();
+            Console.WriteLine(jsonResponse);
+			var a = new GraphBuilder(jsonResponse);
+        }
 	}
 }
 

@@ -9,13 +9,17 @@ namespace OSMRouting
 {
     public class Node
     {
-        [JsonPropertyName("id")]
-        public long Id { get; set; }
+		public Node(long id, double lat, double lon)
+		{
+			Id = id;
+			Lat = lat;
+			Lon = lon;
+		}
 
-		[JsonPropertyName("lat")]
-		public double lat {  get; set; }
+		public long Id { get; set; }
 
-		[JsonPropertyName("lon")]
-		public double lon { get; set; }
+		public double Lat {  get; set; }
+
+		public double Lon { get; set; }
     }
 }

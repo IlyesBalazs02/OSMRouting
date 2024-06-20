@@ -9,7 +9,12 @@ namespace OSMRouting
 {
 	public class Way
 	{
-		[JsonPropertyName("id")]
+		public Way(long id)
+		{
+			Id = id;
+			Nodes = new List<Node> { };
+		}
+
 		public long Id { get; set; }
 		public List<Node> Nodes { get; set; }
 	}
