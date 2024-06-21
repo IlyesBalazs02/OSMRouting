@@ -10,7 +10,17 @@
 			double minLon = 15.80381;
 
 			var jsonResponse = new OsmHttpRequest(minLat, minLon, maxLat, maxLon).getJsonResponse();
-			var a = new GraphBuilder(jsonResponse);
+			var graph = new GraphBuilder(jsonResponse);
+
+			var graphNodes = graph.GraphNodeList();
+
+			var aStar = new AStar(graphNodes);
+			var resultCoordinates = aStar.FindPath(graphNodes.First(), graphNodes.Last()); //TODO work with 2 random coordinate
+
+			foreach ( var coord in resultCoordinates ) 
+			{ 
+				Console.WriteLine(coord.Lat + " " + coord.Lon);
+			}
         }
 	}
 }

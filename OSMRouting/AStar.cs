@@ -10,7 +10,7 @@ namespace OSMRouting
 	{
 		private List<GraphNode> graphNodeList;
 
-        public AStar(List<GraphNode> graphNodes, GraphNode start, GraphNode goal)
+        public AStar(List<GraphNode> graphNodes)
         {
             graphNodeList = graphNodes;
         }
