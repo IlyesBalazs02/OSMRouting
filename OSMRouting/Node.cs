@@ -9,17 +9,13 @@ namespace OSMRouting
 {
     public class Node : GraphNode
     {
-		public Node(long id, double lat, double lon)
+		public Node(long id, double lat, double lon) : base(lat, lon)
 		{
 			Id = id;
-			Lat = lat;
-			Lon = lon;
 		}
 
 		public long Id { get; set; }
 
-		public double Lat {  get; set; }
 
-		public double Lon { get; set; }
     }
 }

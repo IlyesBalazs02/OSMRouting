@@ -22,15 +22,21 @@ namespace OSMRouting
 			wayList = new List<Way>();
 			graphNodeList = new List<GraphNode>();
 			ProcessJsonResponse(jsonResponse);
-			CreateGraph(getTheNodes());
+			CreateGraph(SelectGraphNodes());
 		}
 
+		public List<GraphNode> GraphNodeList()
+		{
+			return graphNodeList;
+		}
+
+		//TODO Skip nodes that appear twice
+		//TODO Use this CalculateDistance method only at the end when the final route is returned, until then use something that requires less calculation
 		private void CreateGraph(List<Node> tmp)
 		{
 			double distanceBetweenNodes = 0;
 			double prevLat;
 			double prevLon;
-			int i = 0;
 
 			foreach (var way in wayList)
 			{
@@ -46,7 +52,7 @@ namespace OSMRouting
 					//the node is one of the nodes of the graph
 					if (tmp.Contains(node))
 					{
-						//if it's not the first element 
+						//if it's not the first element of the way collection
 						if (prev != null)
 						{
 							if (!graphNodeList.Contains(node)) graphNodeList.Add(node);
@@ -58,7 +64,6 @@ namespace OSMRouting
 						else
 						{
 							//if it's the first element 
-							//TODO fix it later
 							prev = node;
 							if (!graphNodeList.Contains(prev)) graphNodeList.Add(prev);
 						}
@@ -72,27 +77,25 @@ namespace OSMRouting
                 Console.WriteLine((node as Node).Id);
 				foreach(var item in node.Neighbours)
 				{
-					Console.WriteLine("\t" + item.Key.Id + "   " + item.Value);
-				}
+                    Console.WriteLine("\t" + item.Key.Id + "   " + item.Value);
+                }
 			}
 
-			;
 		}
 
-		private List<Node> getTheNodes()
+		//return all the nodes which form the graph, which will be:
+			// the nodes that appear more than once meaning there is multiple way goin from that node
+			// the first and last nodes of a way collection (end of the roads/dead ends)
+		private List<Node> SelectGraphNodes()
 		{
 			Dictionary<Node, int> nodeCounts = new Dictionary<Node, int>();
 
-			//intersections
 			foreach (var item in wayList)
 			{
-				var a = item.Nodes.First();
-
-				//First and Last nodes of the list
 				if (!nodeCounts.ContainsKey(item.Nodes.First())) nodeCounts[item.Nodes.First()] = 1;
 				if (!nodeCounts.ContainsKey(item.Nodes.Last())) nodeCounts[item.Nodes.Last()] = 1;
 
-				//intersections
+				//counts how many times do each node appear in the way collections
 				foreach (var node in item.Nodes)
 				{
 
@@ -108,6 +111,7 @@ namespace OSMRouting
 				}
 			}
 
+			//the result
 			var result = nodeCounts.Where(kvp => kvp.Value >= 2).Select(kvp => kvp.Key).ToList();
 
 
@@ -158,24 +162,9 @@ namespace OSMRouting
 				}
 			}
 
-			foreach (var way in wayList)
-			{
-				way.Distance = calculateWayDistance(way);
-			}
-
 		}
 
-		private double calculateWayDistance(Way way)
-		{
-			double sum = 0;
-			Node tmp = way.Nodes[0];
-			foreach (var node in way.Nodes)
-			{
-				sum += CalculateDistance(tmp.Lat, tmp.Lon, node.Lat, node.Lon);
-			}
 
-			return sum;
-		}
 
 		public const double RADIUS_OF_EARTH = 6371; // Earth's radius in kilometers
 
