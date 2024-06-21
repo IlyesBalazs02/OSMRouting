@@ -17,5 +17,6 @@ namespace OSMRouting
 
 		public long Id { get; set; }
 		public List<Node> Nodes { get; set; }
+		public double Distance { get; set; }
 	}
 }
