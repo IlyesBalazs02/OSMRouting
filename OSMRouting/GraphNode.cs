@@ -8,14 +8,11 @@ namespace OSMRouting
 {
 	public class GraphNode
 	{
-		public Node nodePointer { get; private set; }
+        public Dictionary<Node, double> Neighbours { get; set; }
 
-		public Dictionary<Node, double> Neighbours { get; set; }
-
-        public GraphNode(Node nodePointer)
+        public GraphNode()
         {
-            this.nodePointer = nodePointer;
-            Neighbours = new Dictionary<Node, double>();
+            Neighbours = new Dictionary<Node, double>(); 
         }
     }
 }

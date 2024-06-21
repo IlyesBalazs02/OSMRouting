@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,15 +15,71 @@ namespace OSMRouting
 	{
 		private List<Node> nodeList;
 		private List<Way> wayList;
+		private List<GraphNode> graphNodeList;
 		public GraphBuilder(string jsonResponse)
 		{
 			nodeList = new List<Node>();
 			wayList = new List<Way>();
+			graphNodeList = new List<GraphNode>();
 			ProcessJsonResponse(jsonResponse);
-			getTheNodes();
+			CreateGraph(getTheNodes());
 		}
 
-		private void getTheNodes()
+		private void CreateGraph(List<Node> tmp)
+		{
+			double distanceBetweenNodes = 0;
+			double prevLat;
+			double prevLon;
+			int i = 0;
+
+			foreach (var way in wayList)
+			{
+				Node prev = null;
+				prevLat = way.Nodes[0].Lat;
+				prevLon = way.Nodes[0].Lon;
+				foreach (var node in way.Nodes)
+				{
+					distanceBetweenNodes += CalculateDistance(prevLat, prevLon, node.Lat, node.Lon);
+					prevLat = node.Lat;
+					prevLon = node.Lon;
+
+					//the node is one of the nodes of the graph
+					if (tmp.Contains(node))
+					{
+						//if it's not the first element 
+						if (prev != null)
+						{
+							if (!graphNodeList.Contains(node)) graphNodeList.Add(node);
+
+							node.Neighbours.Add(prev, distanceBetweenNodes);
+							prev.Neighbours.Add(node, distanceBetweenNodes);
+							distanceBetweenNodes = 0;
+						}
+						else
+						{
+							//if it's the first element 
+							//TODO fix it later
+							prev = node;
+							if (!graphNodeList.Contains(prev)) graphNodeList.Add(prev);
+						}
+					}
+				}
+
+			}
+
+			foreach (var node in graphNodeList)
+			{
+                Console.WriteLine((node as Node).Id);
+				foreach(var item in node.Neighbours)
+				{
+					Console.WriteLine("\t" + item.Key.Id + "   " + item.Value);
+				}
+			}
+
+			;
+		}
+
+		private List<Node> getTheNodes()
 		{
 			Dictionary<Node, int> nodeCounts = new Dictionary<Node, int>();
 
@@ -30,7 +87,7 @@ namespace OSMRouting
 			foreach (var item in wayList)
 			{
 				var a = item.Nodes.First();
-				
+
 				//First and Last nodes of the list
 				if (!nodeCounts.ContainsKey(item.Nodes.First())) nodeCounts[item.Nodes.First()] = 1;
 				if (!nodeCounts.ContainsKey(item.Nodes.Last())) nodeCounts[item.Nodes.Last()] = 1;
@@ -53,10 +110,8 @@ namespace OSMRouting
 
 			var result = nodeCounts.Where(kvp => kvp.Value >= 2).Select(kvp => kvp.Key).ToList();
 
-			foreach (var node in result)
-			{
-				Console.WriteLine(node.Id);
-			}
+
+			return result;
 		}
 
 		private void ProcessJsonResponse(string jsonResponse)

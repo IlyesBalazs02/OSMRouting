@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OSMRouting
 {
-    public class Node
+    public class Node : GraphNode
     {
 		public Node(long id, double lat, double lon)
 		{
