@@ -18,12 +18,17 @@
 			//var resultCoordinates = aStar.FindPath(graphNodes.First(), graphNodes.Last()); //TODO work with 2 random coordinate
 			var resultCoordinates = aStar.FindPath(graphNodes.First(), graphNodes[67]); //TODO work with 2 random coordinate
 
-			foreach ( var coord in resultCoordinates ) 
-			{ 
-				Console.WriteLine(coord.Lat + " " + coord.Lon);
-			}
+			//foreach ( var coord in resultCoordinates ) 
+			//{ 
+			//	Console.WriteLine(coord.Lat + " " + coord.Lon);
+			//}
 
-			var asd = graph.ReconstructPath(resultCoordinates);
+            foreach ( var node in graph.ReconstructPath(resultCoordinates))
+			{
+                Console.WriteLine(node.Lat + " " + node.Lon);
+            }
+
+			//Implement a k-d tree so it will be able to create a route between two random coordinates
         }
 	}
 }

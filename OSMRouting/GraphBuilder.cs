@@ -65,7 +65,7 @@ namespace OSMRouting
 
 				a = b;
 			}
-			;
+			
 
 			return result;
 		}
@@ -132,14 +132,14 @@ namespace OSMRouting
 
 			}
 
-			foreach (var node in graphNodeList)
-			{
-				Console.WriteLine(node.Id);
-				foreach (var item in node.Neighbours)
-				{
-					Console.WriteLine("\t" + item.Key.Id + "   " + item.Value);
-				}
-			}
+			//foreach (var node in graphNodeList)
+			//{
+			//	Console.WriteLine(node.Id);
+			//	foreach (var item in node.Neighbours)
+			//	{
+			//		Console.WriteLine("\t" + item.Key.Id + "   " + item.Value);
+			//	}
+			//}
 
 		}
 
