@@ -4,10 +4,17 @@
 	{
 		static void Main(string[] args)
 		{
-			double maxLat = 47.71424;
-			double maxLon = 15.80773;
-			double minLat = 47.70812;
-			double minLon = 15.80381;
+			//double maxLat = 47.71424;
+			//double maxLon = 15.80773;
+			//double minLat = 47.70812;
+			//double minLon = 15.80381;
+
+			//Way: Szőkeföldi utca (112539464)
+			//TODO Handle these situations
+			double maxLat = 47.2498;
+			double maxLon = 16.6412;
+			double minLat = 47.2146;
+			double minLon = 16.6099;
 
 			var jsonResponse = new OsmHttpRequest(minLat, minLon, maxLat, maxLon).getJsonResponse();
 			var graph = new GraphBuilder(jsonResponse);
@@ -16,7 +23,7 @@
 
 			var aStar = new AStar(graphNodes);
 			//var resultCoordinates = aStar.FindPath(graphNodes.First(), graphNodes.Last()); //TODO work with 2 random coordinate
-			var resultCoordinates = aStar.FindPath(graphNodes.First(), graphNodes[67]); //TODO work with 2 random coordinate
+			var resultCoordinates = aStar.FindPath(graphNodes.Find(t => t.Id == 6196523587), graphNodes.Find(t => t.Id == 685881194)); //TODO work with 2 random coordinate
 
 			//foreach ( var coord in resultCoordinates ) 
 			//{ 

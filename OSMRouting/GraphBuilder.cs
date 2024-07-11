@@ -104,7 +104,7 @@ namespace OSMRouting
 							GraphNode lastGraphNode = graphNodeList.Find(t => t.Id == lastNode.Id);
 
 							// 2 different way collection may contain the same 2 graphnode leading into an exception
-							if (!tmp.Neighbours.ContainsKey(lastGraphNode))
+							if (!(tmp.Neighbours.ContainsKey(lastGraphNode)))
 							{
 								tmp.Neighbours.Add(lastGraphNode, distanceBetweenNodes);
 								lastGraphNode.Neighbours.Add(tmp, distanceBetweenNodes);
@@ -216,6 +216,8 @@ namespace OSMRouting
 						Node node = nodeList.Find(n => n.Id == nodeId);
 						if (node != null)
 						{
+							//TODO fix it
+							if(!way.Nodes.Contains(node))
 							way.Nodes.Add(node);
 						}
 					}
