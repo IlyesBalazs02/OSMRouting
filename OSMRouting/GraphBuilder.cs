@@ -15,7 +15,7 @@ namespace OSMRouting
 	{
 		private List<Node> nodeList;
 		private List<Way> wayList;
-		private List<GraphNode> graphNodeList;
+		private List<GraphNode> graphNodeList; // Stores all the GraphNode along with the Properties for the A* algorithm
 		public GraphBuilder(string jsonResponse)
 		{
 			nodeList = new List<Node>();
@@ -30,17 +30,18 @@ namespace OSMRouting
 			return graphNodeList;
 		}
 
-		//TODO Skip nodes that appear twice
-		//TODO Use this CalculateDistance method only at the end when the final route is returned, until then use something that requires less calculation
-		private void CreateGraph(List<Node> tmp)
+		//Inserts the GraphNodes into the graphNodeList collection and finds the edges with the weigths, then inserts them into the neighbours collection.
+		//TODO Use the CalculateDistance method only at the end when the final route is returned to reduce computation. until then use something that requires less computation
+		private void CreateGraph(List<Node> SelectGraphNodes)
 		{
 			double distanceBetweenNodes = 0;
 			double prevLat;
 			double prevLon;
 
+			// Iterates through all nodes to calculate distances between GraphNodes
 			foreach (var way in wayList)
 			{
-				Node prev = null;
+				Node lastNode = way.Nodes[0];
 				prevLat = way.Nodes[0].Lat;
 				prevLon = way.Nodes[0].Lon;
 				foreach (var node in way.Nodes)
@@ -49,23 +50,41 @@ namespace OSMRouting
 					prevLat = node.Lat;
 					prevLon = node.Lon;
 
-					//the node is one of the nodes of the graph
-					if (tmp.Contains(node))
+					// Checks if the node is a GraphNode
+					if (SelectGraphNodes.Contains(node))
 					{
-						//if it's not the first element of the way collection
-						if (prev != null)
+						//if it's the first element of the collection, than we can't add a neighbour to it yet, we just put it into the graphnodeList collection if it's still not there
+						if (node != way.Nodes[0])
 						{
-							if (!graphNodeList.Contains(node)) graphNodeList.Add(node);
 
-							node.Neighbours.Add(prev, distanceBetweenNodes);
-							prev.Neighbours.Add(node, distanceBetweenNodes);
+							if (!graphNodeList.Any(t => t.Id == node.Id)) graphNodeList.Add(new GraphNode(node.Id, node.Lat, node.Lon));
+
+							GraphNode tmp = graphNodeList.Find(t => t.Id == node.Id);
+							GraphNode lastGraphNode = graphNodeList.Find(t => t.Id == lastNode.Id);
+
+							// 2 different way collection may contain the same 2 graphnode leading into an exception
+							if (!tmp.Neighbours.ContainsKey(lastGraphNode))
+							{
+								tmp.Neighbours.Add(lastGraphNode, distanceBetweenNodes);
+								lastGraphNode.Neighbours.Add(tmp, distanceBetweenNodes);
+							}
+							else
+							{
+								// Update the distance if the new one is shorter
+								if (distanceBetweenNodes < tmp.Neighbours[lastGraphNode])
+								{
+									tmp.Neighbours[lastGraphNode] = distanceBetweenNodes;
+									lastGraphNode.Neighbours[tmp] = distanceBetweenNodes;
+								}
+							}
+
 							distanceBetweenNodes = 0;
+							lastNode = node;
 						}
 						else
 						{
-							//if it's the first element 
-							prev = node;
-							if (!graphNodeList.Contains(prev)) graphNodeList.Add(prev);
+							// Add the first node if it's not already in the graphNodeList
+							if (!graphNodeList.Any(t => t.Id == lastNode.Id)) graphNodeList.Add(new GraphNode(lastNode.Id, lastNode.Lat, lastNode.Lon));
 						}
 					}
 				}
@@ -74,28 +93,32 @@ namespace OSMRouting
 
 			foreach (var node in graphNodeList)
 			{
-                Console.WriteLine((node as Node).Id);
-				foreach(var item in node.Neighbours)
+				Console.WriteLine(node.Id);
+				foreach (var item in node.Neighbours)
 				{
-                    Console.WriteLine("\t" + item.Key.Id + "   " + item.Value);
-                }
+					Console.WriteLine("\t" + item.Key.Id + "   " + item.Value);
+				}
 			}
 
 		}
 
-		//return all the nodes which form the graph, which will be:
-			// the nodes that appear more than once meaning there is multiple way goin from that node
-			// the first and last nodes of a way collection (end of the roads/dead ends)
+		// Returns all nodes that form the graph, which are:
+		// - Nodes that appear more than once(indicating intersections / multiple ways from that node)
+		// - The first and last nodes of a way (indicative of road ends/dead ends, they represent the nodes in the graph that has only 1 edge)
+
+		//TODO Ignore the Nodes that appears twice as they are just continuous parts of the road
 		private List<Node> SelectGraphNodes()
 		{
 			Dictionary<Node, int> nodeCounts = new Dictionary<Node, int>();
 
 			foreach (var item in wayList)
 			{
+
+				//The first and last element of a way collection is must be a GraphNode
 				if (!nodeCounts.ContainsKey(item.Nodes.First())) nodeCounts[item.Nodes.First()] = 1;
 				if (!nodeCounts.ContainsKey(item.Nodes.Last())) nodeCounts[item.Nodes.Last()] = 1;
 
-				//counts how many times do each node appear in the way collections
+				// Count how many times each node appears across all way collections
 				foreach (var node in item.Nodes)
 				{
 
@@ -111,13 +134,11 @@ namespace OSMRouting
 				}
 			}
 
-			//the result
-			var result = nodeCounts.Where(kvp => kvp.Value >= 2).Select(kvp => kvp.Key).ToList();
-
-
-			return result;
+			// Filter and return nodes that meet the criteria for being a GraphNode
+			return nodeCounts.Where(kvp => kvp.Value >= 2).Select(kvp => kvp.Key).ToList();
 		}
 
+		// fill the nodeList and wayList collections based on the OSM data
 		private void ProcessJsonResponse(string jsonResponse)
 		{
 
