@@ -15,12 +15,15 @@
 			var graphNodes = graph.GraphNodeList();
 
 			var aStar = new AStar(graphNodes);
-			var resultCoordinates = aStar.FindPath(graphNodes.First(), graphNodes.Last()); //TODO work with 2 random coordinate
+			//var resultCoordinates = aStar.FindPath(graphNodes.First(), graphNodes.Last()); //TODO work with 2 random coordinate
+			var resultCoordinates = aStar.FindPath(graphNodes.First(), graphNodes[67]); //TODO work with 2 random coordinate
 
 			foreach ( var coord in resultCoordinates ) 
 			{ 
 				Console.WriteLine(coord.Lat + " " + coord.Lon);
 			}
+
+			var asd = graph.ReconstructPath(resultCoordinates);
         }
 	}
 }

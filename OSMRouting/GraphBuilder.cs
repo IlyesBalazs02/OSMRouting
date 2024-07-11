@@ -30,6 +30,47 @@ namespace OSMRouting
 			return graphNodeList;
 		}
 
+		//TODO return path with the correct distance
+		public List<Node> ReconstructPath(List<GraphNode> mainNodes)
+		{
+			List<Node> result = new List<Node>();
+
+			Node a = nodeList.Find(t => t.Id == mainNodes.First().Id);
+			result.Add(a);
+
+			foreach (var node in mainNodes.Skip(1))
+			{
+				Node b = nodeList.Find(t => t.Id == node.Id);
+
+				var path = wayList.Find(t => t.Nodes.Contains(a) && t.Nodes.Contains(b));
+
+				int aIndex = path.Nodes.FindIndex(t => t.Id == a.Id);
+				int bIndex = path.Nodes.FindIndex(t => t.Id == b.Id);
+				if (aIndex < bIndex)
+				{
+					while (aIndex < bIndex) 
+					{
+						++aIndex;
+						result.Add(path.Nodes[aIndex]);
+					}
+				}
+				else
+				{
+					while (aIndex > bIndex)
+					{
+						--aIndex;
+						result.Add(path.Nodes[aIndex]);
+					}
+				}
+
+				a = b;
+			}
+			;
+
+			return result;
+		}
+
+
 		//Inserts the GraphNodes into the graphNodeList collection and finds the edges with the weigths, then inserts them into the neighbours collection.
 		//TODO Use the CalculateDistance method only at the end when the final route is returned to reduce computation. until then use something that requires less computation
 		private void CreateGraph(List<Node> SelectGraphNodes)
@@ -191,7 +232,7 @@ namespace OSMRouting
 
 		//TODO: Only use this if the route is already found
 
-		public static double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
+		private static double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
 		{
 			// Convert latitude and longitude from degrees to radians
 			double lat1Radians = DegreesToRadians(lat1);
