@@ -21,9 +21,18 @@
 
 			var graphNodes = graph.GraphNodeList();
 
+			var tree = new KDTree(graphNodes);
+
+			double myLat = 47.4979;
+			double myLon = 19.0402;
+
+			GraphNode nearest1 = tree.FindNearest(47.2201, 16.6102);
+			GraphNode nearest2 = tree.FindNearest(47.2406, 16.6293);
+
+
 			var aStar = new AStar(graphNodes);
 			//var resultCoordinates = aStar.FindPath(graphNodes.First(), graphNodes.Last()); //TODO work with 2 random coordinate
-			var resultCoordinates = aStar.FindPath(graphNodes.Find(t => t.Id == 6196523587), graphNodes.Find(t => t.Id == 685881194)); //TODO work with 2 random coordinate
+			var resultCoordinates = aStar.FindPath(graphNodes.Find(t => t.Id == nearest1.Id), graphNodes.Find(t => t.Id == nearest2.Id)); //TODO work with 2 random coordinate
 
 			//foreach ( var coord in resultCoordinates ) 
 			//{ 
@@ -35,8 +44,19 @@
                 Console.WriteLine(node.Lat + " " + node.Lon);
             }
 
+			/*
+																		  ;
+			var tree = new KdTree(allNodes);
+
+			// your query position
+			double myLat = 47.4979;
+			double myLon = 19.0402;
+
+			GraphNode nearest = tree.FindNearest(myLat, myLon);
+			Console.WriteLine($"Closest node ID is {nearest.Id} at ({nearest.Lat}, {nearest.Lon})");*/
+
 			//Implement a k-d tree so it will be able to create a route between two random coordinates
-        }
+		}
 	}
 }
 
